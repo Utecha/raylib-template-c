@@ -1,57 +1,70 @@
------------------------------------
+## Getting Started
 
-_DISCLAIMER:_
-
-Welcome to **raylib game template**!
-
-This template provides a base structure to start developing a small raylib game in plain C. The repo is also pre-configured with a default `LICENSE` (zlib/libpng) and a `README.md` (this one) to be properly filled by users. Feel free to change the LICENSE as required.
-
-All the sections defined by `$(Data to Fill)` are expected to be edited and filled properly. It's recommended to delete this disclaimer message after editing this `README.md` file.
-
-This template has been created to be used with raylib (www.raylib.com) and it's licensed under an unmodified zlib/libpng license.
-
-_Copyright (c) 2014-2025 Ramon Santamaria ([@raysan5](https://twitter.com/raysan5))_
-
------------------------------------
-## Getting Started with this template
-
-You can use this templates in some ways. Using Visual Studio, using CMake or make your own build setup. This repository come with Visual Studio and CMake already setuped.
-
-Chose one of the follow setup, that fit in you development enviroment.
-
-### Visual Studio
-
-- After extracting the zip, the parent folder `raylib-game-template` should exist in the same directory as `raylib` itself.  So your file structure should look like this:
-    - Some parent directory
-        - `raylib`
-            - the contents of https://github.com/raysan5/raylib
-        - `raylib-game-template`
-            - this `README.md` and all other raylib-game-template files
-- If using Visual Studio, open projects/VS2022/raylib-game-template.sln
-- Select on `raylib_game` in the solution explorer, then in the toolbar at the top, click `Project` > `Set as Startup Project`
-- Now you're all set up!  Click `Local Windows Debugger` with the green play arrow and the project will run.
+This template comes pre-setup with a build setup using CMake. You can opt to either
+use it or your own custom build setup.
 
 ### CMake
 
-- Extract the zip of this project
-- Type the follow command:
+Clone the repository (or download the zip):
+
+```bash
+git clone https://github.com/Utecha/raylib-template-c.git
+```
+
+If using clangd, in order for it to recognize the raylib include and function calls
+line in the sample source file, you must first run the configuration
+for CMake using:
 
 ```sh
 cmake -S . -B build
 ```
 
-> if you want with debug symbols put the flag `-DCMAKE_BUILD_TYPE=Debug`
+Optionally, you can set the build type:
 
-- After CMake config your project build:
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+```
+
+The available build types are (case-sensitive):
+
+- Debug
+- Release
+
+After CMake has run its configuration, you
+can then run this command to build the project:
 
 ```sh
 cmake --build build
 ```
 
-- Inside the build folder are another folder (named the same as the project name on CMakeLists.txt) with the executable and resources folder.
-- In order for resources to load properly, cd to `src` and run the executable (`../build/${PROJECT_NAME}/${PROJECT_NAME}`) from there.
+It is recommended that you add the option `-j x`, where 'x' is
+the number of threads you want to build with. This can significantly reduce
+build times.
 
-- cmake will automatically download a current release of raylib but if you want to use your local version you can pass `-DFETCHCONTENT_SOURCE_DIR_RAYLIB=<dir_with_raylib>` 
+The build folder will contain all related build files, including a directory
+with the same name as the project. This directory contains the executable and
+resources folder.
+
+For the resources to load properly, you need to `cd` into `src` and
+run the executable (`../build/${PROJECT_NAME}/${PROJECT_NAME}`) from there.
+
+CMake will automatically fetch a current release of raylib and/or raygui. If you
+happen to have it installed already on your system (say via a package manager),
+it will default to using that instead.
+
+You can also opt to use your own local version by passing the flag
+`-DFETCHCONTENT_SOURCE_DIR_RAYLIB=<dir_with_raylib>` to the CMake configuration command.
+
+## README Template
+
+Below this section is the README template. It is expected that once you've
+modified the LICENSE and README and familiarized yourself with the project setup
+that you will delete everything above the separator line.
+
+You can of course modify it how you want, but specific points that definitely
+should be modified are marked with `$(Data to edit)`.
+
+-----------------------------------
 
 ## $(Game Title)
 
@@ -63,37 +76,40 @@ $(Your Game Description)
 
 ### Features
 
- - $(Game Feature 01)
- - $(Game Feature 02)
- - $(Game Feature 03)
+- $(Game Feature 01)
+- $(Game Feature 02)
+- $(Game Feature 03)
 
 ### Controls
 
 Keyboard:
- - $(Game Control 01)
- - $(Game Control 02)
- - $(Game Control 03)
+
+- $(Game Control 01)
+- $(Game Control 02)
+- $(Game Control 03)
 
 ### Screenshots
 
-_TODO: Show your game to the world, animated GIFs recommended!._
+_TODO: Show your game to the world, animated GIFs recommended!_
 
 ### Developers
 
- - $(Developer 01) - $(Role/Tasks Developed)
- - $(Developer 02) - $(Role/Tasks Developed)
- - $(Developer 03) - $(Role/Tasks Developed)
+- $(Developer 01) - $(Role/Tasks Developed)
+- $(Developer 02) - $(Role/Tasks Developed)
+- $(Developer 03) - $(Role/Tasks Developed)
 
 ### Links
 
- - YouTube Gameplay: $(YouTube Link)
- - itch.io Release: $(itch.io Game Page)
- - Steam Release: $(Steam Game Page)
+- YouTube Gameplay: $(YouTube Link)
+- itch.io Release: $(itch.io Game Page)
+- Steam Release: $(Steam Game Page)
 
 ### License
 
-This game sources are licensed under an unmodified zlib/libpng license, which is an OSI-certified, BSD-like license that allows static linking with closed source software. Check [LICENSE](LICENSE) for further details.
+This game sources are licensed under an unmodified zlib/libpng license, which is
+an OSI-certified, BSD-like license that allows static linking with closed source
+software. Check [LICENSE](LICENSE) for further details.
 
 $(Additional Licenses)
 
-*Copyright (c) $(Year) $(User Name) ($(User Twitter/GitHub Name))*
+_Copyright (c) $(Year) $(User Name) ($(User Twitter/GitHub Name))_
