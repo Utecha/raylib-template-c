@@ -25,6 +25,12 @@ else()
     message(STATUS "Compiling using the system default compiler")
 endif()
 
+## Set default build type
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Setting default build type to 'Debug'")
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type")
+endif()
+
 ## Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
