@@ -1,38 +1,36 @@
 ## Set minimum required CMake version
 cmake_minimum_required(VERSION 3.20...3.30)
 
+## Set compiler toolchain
+if(WIN32)
+    include("${CMAKE_SOURCE_DIR}/toolchains/windows.cmake")
+elseif(UNIX)
+    include("${CMAKE_SOURCE_DIR}/toolchains/linux.cmake")
+endif()
+
 ## Define the project
 project(raylib-c
     VERSION 0.1.0
     DESCRIPTION "A cool project with raylib"
+    LANGUAGES C
 )
 message("${PROJECT_NAME} version: ${CMAKE_PROJECT_VERSION}")
 
-## Set C compiler and standard
-set(CMAKE_C_STANDARD 99)
-
-# Use clang if available. Otherwise, fall back to gcc or the system default, respectively.
-find_program(CLANG_C_COMPILER clang)
-find_program(GCC_C_COMPILER gcc)
-
-if(CLANG_C_COMPILER)
-    message(STATUS "Compiling using clang")
-    set(CMAKE_C_COMPILER CACHE STRING ${CLANG_C_COMPILER})
-elseif(GCC_C_COMPILER)
-    message(STATUS "Compiling using gcc")
-    set(CMAKE_C_COMPILER CACHE STRING ${GCC_C_COMPILER})
-else()
-    message(STATUS "Compiling using the system default compiler")
-endif()
-
-## Set default build type
-if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "Setting default build type to 'Debug'")
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type")
-endif()
-
 ## Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+## Set default build type
+# NOTE: This is done before fetching raylib, and uses FORCE to
+# ensure that it is set and that, ideally, it will be detected
+# by raylib.
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Setting default build type to 'Debug'")
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type" FORCE)
+endif()
+
+## Provide Options
+option(SNIPPET "Enable compiling 'snippets' (-Wno-unused-function)" ON)
+message(STATUS "Compile Snippets: ${SNIPPET}")
 
 ## Manage dependencies
 include(FetchContent)
@@ -70,7 +68,7 @@ add_subdirectory(src)
 
 set_target_properties(
     ${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME}
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}
 )
 
 set_property(
@@ -84,13 +82,17 @@ add_custom_command(
 )
 
 # Set initial compiler flags
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wno-unused-parameter)
+
+# Allow compiling with unused functions
+if(SNIPPET)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unused-function)
+endif()
 
 # Add additional flags based on build type
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    target_compile_options(${PROJECT_NAME} PRIVATE -ggdb -O0)
-elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-    target_compile_options(${PROJECT_NAME} PRIVATE -O2)
+    # Generates debug information specifically for gdb
+    target_compile_options(${PROJECT_NAME} PRIVATE -ggdb)
 endif()
 
 # Add include path(s)
@@ -103,7 +105,7 @@ endif()
 target_link_libraries(${PROJECT_NAME} raylib)
 
 # Checks if OSX and links appropriate frameworks (Only required on MacOS)
-if (APPLE)
+if(APPLE)
     target_link_libraries(${PROJECT_NAME} "-framework IOKit")
     target_link_libraries(${PROJECT_NAME} "-framework Cocoa")
     target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
