@@ -28,7 +28,9 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 The available build types are (case-sensitive):
 
 - Debug
+- RelWithDebInfo
 - Release
+- MinSizeRel
 
 After CMake has run its configuration, you
 can then run this command to build the project:
@@ -47,6 +49,9 @@ resources folder.
 
 For the resources to load properly, you need to `cd` into `src` and
 run the executable (`../build/${PROJECT_NAME}/${PROJECT_NAME}`) from there.
+
+Alternatively, since the resources are copied to the final build folder, you can
+navigate there and then run the project from that directory.
 
 CMake will automatically fetch a current release of raylib and/or raygui. If you
 happen to have it installed already on your system (say via a package manager),

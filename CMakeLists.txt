@@ -1,14 +1,16 @@
-## Set minimum required CMake version
+# Set minimum required CMake version
 cmake_minimum_required(VERSION 3.20...3.30)
 
-## Set compiler toolchain
+# Set compiler toolchain
 if(WIN32)
-    include("${CMAKE_SOURCE_DIR}/toolchains/windows.cmake")
+    include("${CMAKE_SOURCE_DIR}/cmake/windows.cmake")
+elseif(APPLE)
+    include("${CMAKE_SOURCE_DIR}/cmake/macos.cmake")
 elseif(UNIX)
-    include("${CMAKE_SOURCE_DIR}/toolchains/linux.cmake")
+    include("${CMAKE_SOURCE_DIR}/cmake/linux.cmake")
 endif()
 
-## Define the project
+# Define the project
 project(raylib-c
     VERSION 0.1.0
     DESCRIPTION "A cool project with raylib"
@@ -16,10 +18,10 @@ project(raylib-c
 )
 message("${PROJECT_NAME} version: ${CMAKE_PROJECT_VERSION}")
 
-## Generate compile_commands.json
+# Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-## Set default build type
+# Set default build type
 # NOTE: This is done before fetching raylib, and uses FORCE to
 # ensure that it is set and that, ideally, it will be detected
 # by raylib.
@@ -28,19 +30,22 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type" FORCE)
 endif()
 
-## Provide Options
-option(SNIPPET "Enable compiling 'snippets' (-Wno-unused-function)" ON)
-message(STATUS "Compile Snippets: ${SNIPPET}")
+# Provide Options
+option(SNIPPETS "Enable compiling 'snippets' (-Wno-unused-function)" ON)
+message(STATUS "Compile Snippets: ${SNIPPETS}")
 
-## Manage dependencies
+# Manage dependencies
 include(FetchContent)
 
 # Configure raylib build options
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build raylib as a shared library")
 set(PLATFORM "Desktop" CACHE STRING "Build for the target platform")
 set(USE_EXTERNAL_GLFW OFF CACHE BOOL "Use external GLFW library")
-set(GLFW_BUILD_WAYLAND ON CACHE BOOL "Build internal glfw with Wayland support")
-set(GLFW_BUILD_X11 ON CACHE BOOL "Build internal glfw with X11 support")
+
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    set(GLFW_BUILD_WAYLAND ON CACHE BOOL "Build internal glfw with Wayland support")
+    set(GLFW_BUILD_X11 ON CACHE BOOL "Build internal glfw with X11 support")
+endif()
 
 # Fetch raylib
 set(RAYLIB_VERSION 5.5)
@@ -81,18 +86,34 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
 )
 
-# Set initial compiler flags
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wno-unused-parameter)
+if(WIN32)
+    # Set initial compiler flags
+    target_compile_options(${PROJECT_NAME} PRIVATE /W3)
 
-# Allow compiling with unused functions
-if(SNIPPET)
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unused-function)
-endif()
+    # Allow compiling with unused functions
+    if(SNIPPETS)
+        target_compile_options(${PROJECT_NAME} PRIVATE /wd4505)
+    endif()
 
-# Add additional flags based on build type
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    # Generates debug information specifically for gdb
-    target_compile_options(${PROJECT_NAME} PRIVATE -ggdb)
+    # Add additional flags based on build type
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        # Generates debug information specifically for gdb
+        target_compile_options(${PROJECT_NAME} PRIVATE /Z7)
+    endif()
+elseif(UNIX)
+    # Set initial compiler flags
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+
+    # Allow compiling with unused functions
+    if(SNIPPETS)
+        target_compile_options(${PROJECT_NAME} PRIVATE -Wno-unused-function)
+    endif()
+
+    # Add additional flags based on build type
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        # Generates debug information specifically for gdb
+        target_compile_options(${PROJECT_NAME} PRIVATE -ggdb)
+    endif()
 endif()
 
 # Add include path(s)
